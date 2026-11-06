@@ -1,0 +1,116 @@
+{
+  "info": {
+    "_postman_id": "d4a1b2c3-4567-890a-bcde-f1234567890a",
+    "name": "Personal Notes Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Root",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": ["{{baseUrl}}"],
+          "path": []
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Status code is 200', function () {",
+            "  pm.response.to.have.status(200);",
+            "});",
+            "pm.test('Success true', function () {",
+            "  var json = pm.response.json();",
+            "  pm.expect(json.success).to.be.true;",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        }
+      },
+      "event": [{
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "pm.test('Health status 200', function () {",
+            "  pm.response.to.have.status(200);",
+            "});",
+            "pm.test('Database OK', function () {",
+            "  var json = pm.response.json();",
+            "  pm.expect(json.success).to.be.true;",
+            "});"
+          ]
+        }
+      }]
+    },
+    {
+      "name": "Signup",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "url": {"raw":"{{baseUrl}}/api/auth/signup","host":["{{baseUrl}}"],"path":["api","auth","signup"]},
+        "body": {"mode":"raw","raw":"{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"yourPassword\"\n}"}
+      },
+      "event": [{
+        "listen":"test",
+        "script":{"type":"text/javascript","exec":[
+          "pm.test('Status code is 201', function () { pm.response.to.have.status(201); });",
+          "pm.test('Success true', function () { pm.expect(pm.response.json().success).to.be.true; });",
+          "pm.test('Token present', function () { pm.expect(pm.response.json()).to.have.property('token'); });",
+          "pm.environment.set('token', pm.response.json().token);"
+        ]}
+      }]
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "url": {"raw":"{{baseUrl}}/api/auth/login","host":["{{baseUrl}}"],"path":["api","auth","login"]},
+        "body": {"mode":"raw","raw":"{\n  \"email\": \"john@example.com\",\n  \"password\": \"yourPassword\"\n}"}
+      },
+      "event": [{
+        "listen":"test",
+        "script":{"type":"text/javascript","exec":[
+          "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+          "pm.test('Login success', function () { pm.expect(pm.response.json().success).to.be.true; });",
+          "pm.test('Token returned', function () { pm.expect(pm.response.json()).to.have.property('token'); });",
+          "pm.environment.set('token', pm.response.json().token);"
+        ]}
+      }]
+    },
+    {
+      "name": "Get Profile",
+      "request": {
+        "method": "GET",
+        "header": [{"key":"Authorization","value":"Bearer {{token}}"}],
+        "url": {"raw":"{{baseUrl}}/api/auth/profile","host":["{{baseUrl}}"],"path":["api","auth","profile"]}
+      },
+      "event": [{
+        "listen":"test",
+        "script":{"type":"text/javascript","exec":[
+          "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+          "pm.test('Profile success', function () { pm.expect(pm.response.json().success).to.be.true; });",
+          "pm.test('User object present', function () { pm.expect(pm.response.json()).to.have.property('user'); });"
+        ]}
+      }]
+    }
+  ]
+}
+
