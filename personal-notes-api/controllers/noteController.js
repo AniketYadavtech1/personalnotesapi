@@ -2,11 +2,12 @@
 const Note = require("../models/noteModel");
 
 // CREATE NOTE
+
 const createNote = async (req, res) => {
     try {
         const { title, content, category } = req.body;
 
-        if (!title || !title.trim()) {
+        if (!title || typeof title !== "string" || !title.trim()) {
             return res.status(400).json({
                 success: false,
                 message: "Note title is required"
@@ -20,11 +21,18 @@ const createNote = async (req, res) => {
             });
         }
 
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({
+                success: false,
+                message: "Please login first"
+            });
+        }
+
         const note = await Note.createNote(
             req.user.id,
             title.trim(),
-            content,
-            category
+            content || "",
+            category || "General"
         );
 
         return res.status(201).json({
@@ -38,10 +46,12 @@ const createNote = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            message: "Failed to create note"
+            message: "Failed to create note",
+            error: error.message
         });
     }
 };
+
 
 
 // GET ALL NOTES

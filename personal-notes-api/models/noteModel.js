@@ -2,13 +2,21 @@
 const pool = require("../config/db");
 
 
+
 const createNote = async (userId, title, content, category) => {
     const result = await pool.query(
-        `INSERT INTO notes
-        (user_id, title, content, category)
-        VALUES ($1, $2, $3, $4)
+        `INSERT INTO public.notes
+        (user_id, title, content, category, is_pinned, is_archived)
+        VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *`,
-        [userId, title, content || "", category || "General"]
+        [
+            userId,
+            title,
+            content || "",
+            category || "General",
+            false,
+            false
+        ]
     );
 
     return result.rows[0];
