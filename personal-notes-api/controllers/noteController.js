@@ -2,17 +2,21 @@
 const Note = require("../models/noteModel");
 
 // CREATE NOTE
+
+
 const createNote = async (req, res) => {
     try {
-        const { title, content, category } = req.body;
+        const { title, content } = req.body;
 
-        if (!title || !title.trim()) {
+        // 1. Validate title
+        if (!title || typeof title !== "string" || !title.trim()) {
             return res.status(400).json({
                 success: false,
                 message: "Note title is required"
             });
         }
 
+        // 2. Validate title length
         if (title.trim().length > 200) {
             return res.status(400).json({
                 success: false,
@@ -20,21 +24,38 @@ const createNote = async (req, res) => {
             });
         }
 
+        // 3. Validate content
+        if (content !== undefined && typeof content !== "string") {
+            return res.status(400).json({
+                success: false,
+                message: "Content must be a string"
+            });
+        }
+
+        // 4. Check authenticated user
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({
+                success: false,
+                message: "Unauthorized. Please login first."
+            });
+        }
+
+        // 5. Create note in PostgreSQL
         const note = await Note.createNote(
             req.user.id,
             title.trim(),
-            content,
-            category
+            content || ""
         );
 
+        // 6. Return success response
         return res.status(201).json({
             success: true,
             message: "Note created successfully",
-            note
+            note: note
         });
 
     } catch (error) {
-        console.error("Create note error:", error);
+        console.error("CREATE NOTE ERROR:", error);
 
         return res.status(500).json({
             success: false,
@@ -42,6 +63,8 @@ const createNote = async (req, res) => {
         });
     }
 };
+
+
 
 
 // GET ALL NOTES
